@@ -4,5 +4,5 @@ function! iobuf#nobuffer(job)
   if !has('win32') || !has('win64')
     return
   endif
-  call libcallnr(s:lib, 'no_buffer', job_info(a:job).process)
+  echo libcallnr(s:lib, 'no_buffer', job_info(a:job).process)
 endfunction

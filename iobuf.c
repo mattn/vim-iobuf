@@ -23,23 +23,28 @@ DllMain(HANDLE hModule, DWORD ul_reason_for_call, LPVOID lpReserved) {
 __declspec(dllexport) int
 no_buffer(int pid) {
   char errmsg[512];
+  LPVOID pLoadLibrary;
+  LPVOID  pRemoteDLLName;
+  HANDLE hProcess;
+  HANDLE hThread;
 
-  HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, pid);
+  hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, pid);
   if (!hProcess)
     goto failed;
-  LPVOID  pRemoteDLLName = (LPVOID)VirtualAllocEx(hProcess, NULL, MAX_PATH, MEM_RESERVE|MEM_COMMIT, PAGE_READWRITE);
+  pRemoteDLLName = (LPVOID)VirtualAllocEx(hProcess, NULL, MAX_PATH, MEM_COMMIT, PAGE_READWRITE);
   if (!pRemoteDLLName)
     goto failed;
-  if (!WriteProcessMemory(hProcess, pRemoteDLLName, libpath, lstrlen(libpath), NULL))
+  if (!WriteProcessMemory(hProcess, pRemoteDLLName, libpath, strlen(libpath)+1, NULL))
     goto failed;
-  LPVOID pLoadLibrary = (LPVOID)GetProcAddress(GetModuleHandle("kernel32.dll"), "LoadLibraryA");
+  pLoadLibrary = (LPVOID)GetProcAddress(GetModuleHandle("kernel32.dll"), "LoadLibraryA");
   if (!pLoadLibrary)
     goto failed;
-  HANDLE hThread = CreateRemoteThread(hProcess, NULL, 0, (LPTHREAD_START_ROUTINE)pLoadLibrary, pRemoteDLLName, 0, NULL);
+  hThread = CreateRemoteThread(hProcess, NULL, 0, (LPTHREAD_START_ROUTINE)pLoadLibrary, pRemoteDLLName, 0, NULL);
   if (!hThread)
     goto failed;
   WaitForSingleObject(hThread, INFINITE);
   CloseHandle(hThread);
+
   return 0;
 
 failed:
