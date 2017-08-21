@@ -11,7 +11,7 @@ int
 main(int argc, char* argv[]) {
   while (1) {
     printf("#");
-	Sleep(1000);
+    Sleep(1000);
   }
   return 0;
 }
