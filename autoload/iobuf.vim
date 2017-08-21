@@ -4,6 +4,5 @@ function! iobuf#nobuffer(job)
   if !has('win32') || !has('win64')
     return
   endif
-  let pid = split(string(a:job), ' ')[1]
-  call libcallnr(s:lib, 'no_buffer', 0+pid)
+  call libcallnr(s:lib, 'no_buffer', job_info(a:job).process)
 endfunction
