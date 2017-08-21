@@ -11,8 +11,8 @@ DllMain(HANDLE hModule, DWORD ul_reason_for_call, LPVOID lpReserved) {
       return FALSE;
     last = p = libpath + 1;
     while (*p) {
-	  if (*p == '\\' || *p == '/') last = p;
-	  p++;
+      if (*p == '\\' || *p == '/') last = p;
+      p++;
     }
     *last = 0;
     strcat(libpath, "\\iobuf_inject.dll");
@@ -26,18 +26,18 @@ no_buffer(int pid) {
 
   HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, pid);
   if (!hProcess)
-	goto failed;
+    goto failed;
   LPVOID  pRemoteDLLName = (LPVOID)VirtualAllocEx(hProcess, NULL, MAX_PATH, MEM_RESERVE|MEM_COMMIT, PAGE_READWRITE);
   if (!pRemoteDLLName)
-	goto failed;
+    goto failed;
   if (!WriteProcessMemory(hProcess, pRemoteDLLName, libpath, lstrlen(libpath), NULL))
-	goto failed;
+    goto failed;
   LPVOID pLoadLibrary = (LPVOID)GetProcAddress(GetModuleHandle("kernel32.dll"), "LoadLibraryA");
   if (!pLoadLibrary)
-	goto failed;
+    goto failed;
   HANDLE hThread = CreateRemoteThread(hProcess, NULL, 0, (LPTHREAD_START_ROUTINE)pLoadLibrary, pRemoteDLLName, 0, NULL);
   if (!hThread)
-	goto failed;
+    goto failed;
   WaitForSingleObject(hThread, INFINITE);
   CloseHandle(hThread);
   return 0;
@@ -47,3 +47,5 @@ failed:
   printf("%hs", errmsg);
   return 1;
 }
+
+/* vim:set et st=2 ts=2: */
