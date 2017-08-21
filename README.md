@@ -1,4 +1,4 @@
-# vim-nobuf
+# vim-iobuf
 
 On Windows, stdout has a buffer. As you can see, this can be controllable with setbuf(), but this must be called by the child process itself. So, the parent process can not read the output of child process until the process calls fflush().
 For example, this code can not read output for each times on Windows.
